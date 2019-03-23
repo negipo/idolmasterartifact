@@ -12,7 +12,7 @@ task :download, %i(name) do |task, args|
 end
 
 desc '#'
-task 'cut' do |task, args|
+task :cut do |task, args|
   sh 'ffprobe -hide_banner data/out.mp4 2>data/info'
   duration_text = /Duration: ([\d:]+)/.match(open('data/info').read)[1]
   durations = duration_text.split(':')
@@ -27,7 +27,10 @@ task 'cut' do |task, args|
 end
 
 desc '#'
-task 'glitch' do |task, args|
+task :glitch do |task, args|
   sh 'datamosh', 'data/cut.avi', '-o', 'data/glitched.avi'
-  sh 'ffmpeg -y -i data/glitched.avi data/glitched.mp4'
+  sh 'ffmpeg -i data/glitched.avi -ss 2 -t 1 -r 1 -f image2 data/glitched.jpg'
+  if ENV['VIDEO']
+    sh 'ffmpeg -y -i data/glitched.avi data/glitched.mp4'
+  end
 end
