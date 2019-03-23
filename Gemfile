@@ -1,3 +1,4 @@
 source 'https://rubygems.org'
 
-require 'bundler'
+gem 'bundler'
+gem 'aviglitch'
