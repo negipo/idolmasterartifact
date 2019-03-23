@@ -17,15 +17,17 @@ task 'cut' do |task, args|
   duration_text = /Duration: ([\d:]+)/.match(open('data/info').read)[1]
   durations = duration_text.split(':')
   duration = durations[0].to_i * 3600 + durations[1].to_i * 60 + durations[2].to_i
-  sh "ffmpeg -i data/out.mp4 -ss #{rand(duration - 3)} -t 3 data/cut.avi"
+  finished = false
+  until finished do
+    sh "ffmpeg -y -i data/out.mp4 -ss #{rand(duration)} -t 5 data/cut.avi"
+    if File.size('data/cut.avi') > 300_000
+      finished = true
+    end
+  end
 end
 
 desc '#'
 task 'glitch' do |task, args|
-  avi = AviGlitch.open('data/cut.avi')
-  avi.glitch(:keyframe) do |data|
-    data.gsub(/\d/, '0')
-  end
-  avi.output('data/glitched.avi')
-  sh 'ffmpeg -i data/glitched.avi data/glitched.mp4'
+  sh 'datamosh', 'data/cut.avi', '-o', 'data/glitched.avi'
+  sh 'ffmpeg -y -i data/glitched.avi data/glitched.mp4'
 end
